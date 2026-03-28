@@ -212,10 +212,12 @@
   /* ─────────── CHAT AREA ─────────── */
   .chat-area {
     flex: 1; display: flex; flex-direction: column; height: 100vh;
-    background: linear-gradient(135deg, #0d1f2d 0%, #17212b 50%, #0d1f2d 100%);
-    position: relative;
+    position: relative; overflow: hidden;
+    background-color: #17212b;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='500' height='500'%3E%3Crect width='500' height='500' fill='%2317212b'/%3E%3Ccircle cx='100' cy='100' r='150' fill='%2300e5a0' fill-opacity='0.05'/%3E%3Ccircle cx='400' cy='400' r='150' fill='%230088cc' fill-opacity='0.06'/%3E%3Ccircle cx='400' cy='100' r='100' fill='%2300e5a0' fill-opacity='0.04'/%3E%3Ccircle cx='100' cy='400' r='100' fill='%230088cc' fill-opacity='0.04'/%3E%3Ccircle cx='250' cy='250' r='60' fill='none' stroke='%2300e5a0' stroke-opacity='0.07' stroke-width='2'/%3E%3Ccircle cx='250' cy='250' r='100' fill='none' stroke='%2300e5a0' stroke-opacity='0.05' stroke-width='1.5'/%3E%3Ccircle cx='250' cy='250' r='150' fill='none' stroke='%230088cc' stroke-opacity='0.04' stroke-width='1'/%3E%3Ccircle cx='50' cy='50' r='4' fill='%2300e5a0' fill-opacity='0.15'/%3E%3Ccircle cx='150' cy='50' r='3' fill='%2300e5a0' fill-opacity='0.1'/%3E%3Ccircle cx='250' cy='50' r='4' fill='%2300e5a0' fill-opacity='0.15'/%3E%3Ccircle cx='350' cy='50' r='3' fill='%2300e5a0' fill-opacity='0.1'/%3E%3Ccircle cx='450' cy='50' r='4' fill='%2300e5a0' fill-opacity='0.15'/%3E%3Ccircle cx='50' cy='150' r='3' fill='%2300e5a0' fill-opacity='0.1'/%3E%3Ccircle cx='150' cy='150' r='4' fill='%2300e5a0' fill-opacity='0.15'/%3E%3Ccircle cx='350' cy='150' r='4' fill='%2300e5a0' fill-opacity='0.15'/%3E%3Ccircle cx='450' cy='150' r='3' fill='%2300e5a0' fill-opacity='0.1'/%3E%3Ccircle cx='50' cy='250' r='4' fill='%2300e5a0' fill-opacity='0.12'/%3E%3Ccircle cx='450' cy='250' r='4' fill='%2300e5a0' fill-opacity='0.12'/%3E%3Ccircle cx='50' cy='350' r='3' fill='%2300e5a0' fill-opacity='0.1'/%3E%3Ccircle cx='150' cy='350' r='4' fill='%2300e5a0' fill-opacity='0.15'/%3E%3Ccircle cx='250' cy='350' r='3' fill='%2300e5a0' fill-opacity='0.1'/%3E%3Ccircle cx='350' cy='350' r='4' fill='%2300e5a0' fill-opacity='0.15'/%3E%3Ccircle cx='450' cy='350' r='3' fill='%2300e5a0' fill-opacity='0.1'/%3E%3Ccircle cx='50' cy='450' r='4' fill='%2300e5a0' fill-opacity='0.15'/%3E%3Ccircle cx='150' cy='450' r='3' fill='%2300e5a0' fill-opacity='0.1'/%3E%3Ccircle cx='250' cy='450' r='4' fill='%2300e5a0' fill-opacity='0.15'/%3E%3Ccircle cx='350' cy='450' r='3' fill='%2300e5a0' fill-opacity='0.1'/%3E%3Ccircle cx='450' cy='450' r='4' fill='%2300e5a0' fill-opacity='0.15'/%3E%3C/svg%3E");
+    background-size: 500px 500px;
   }
-  
+  .chat-area > * { position: relative; z-index: 1; }
 
   .chat-header {
     padding: 12px 20px; display: flex; align-items: center; gap: 14px;
@@ -415,11 +417,16 @@
   .profile-status { font-size: 13px; color: var(--text3); text-align: center; font-style: italic; border: 1px solid var(--border); border-radius: 10px; padding: 10px; }
 
   @media (max-width: 768px) {
-    .sidebar { width: 100%; min-width: 100%; }
-    .chat-area { display: none; }
-    .chat-area.mobile-active { display: flex; position: fixed; inset: 0; z-index: 10; }
-    .sidebar.mobile-hidden { display: none; }
+    .main-layout { position: relative; }
+    .sidebar { width: 100vw; min-width: 100vw; position: absolute; top: 0; left: 0; height: 100vh; z-index: 5; transition: transform 0.3s; }
+    .sidebar.mobile-hidden { transform: translateX(-100%); }
+    .chat-area { width: 100vw; min-width: 100vw; position: absolute; top: 0; left: 0; height: 100vh; z-index: 4; display: none; }
+    .chat-area.mobile-active { display: flex !important; z-index: 6; }
     .profile-panel { display: none; }
+    .chat-header { padding: 10px 14px; }
+    .messages-area { padding: 12px 8px; }
+    .chat-input-area { padding: 8px 10px; }
+    .bubble { max-width: 85%; }
   }
 </style>
 </head>
@@ -432,16 +439,16 @@
 //  Connects to backend at BACKEND_URL
 // ══════════════════════════════════════════════════════════
 
-const BACKEND_URL = 'https://ifemi-bh3a.onrender.com'; // Change to your deployed backend URL
-const SOCKET_URL  = 'https://ifemi-bh3a.onrender.com';
+const BACKEND_URL = 'http://localhost:4000'; // Change to your deployed backend URL
+const SOCKET_URL  = 'http://localhost:4000';
 
 // ── State ─────────────────────────────────────────────────
 const state = {
   screen: 'auth',         // auth | main
   authStep: 'phone',      // phone | otp | name
   phone: '', name: '', demoOtp: '',
-  token: sessionStorage.getItem('ifemi_token') || '',
-  user: JSON.parse(sessionStorage.getItem('ifemi_user') || 'null'),
+  token: localStorage.getItem('ifemi_token') || '',
+  user: JSON.parse(localStorage.getItem('ifemi_user') || 'null'),
   contacts: [],
   groups: [],
   messages: {},           // roomId -> [messages]
@@ -545,6 +552,11 @@ function connectSocket() {
   });
 }
 
+function closeMobileChat() {
+  state.activeChat = null;
+  render();
+}
+
 function roomId(a, b) { return [a, b].sort().join('_'); }
 
 // ── Auth ──────────────────────────────────────────────────
@@ -569,8 +581,8 @@ async function verifyOtp() {
   if (data.error) { showToast(data.error); if(btn){btn.disabled=false;btn.textContent='Verify & Continue';} return; }
   state.token = data.token;
   state.user = data.user;
-  sessionStorage.setItem('ifemi_token', data.token);
-  sessionStorage.setItem('ifemi_user', JSON.stringify(data.user));
+  localStorage.setItem('ifemi_token', data.token);
+  localStorage.setItem('ifemi_user', JSON.stringify(data.user));
   await loadData();
   state.screen = 'main';
   connectSocket();
@@ -587,8 +599,8 @@ async function loadData() {
 }
 
 function logout() {
-  sessionStorage.removeItem('ifemi_token');
-  sessionStorage.removeItem('ifemi_user');
+  localStorage.removeItem('ifemi_token');
+  localStorage.removeItem('ifemi_user');
   if (state.socket) state.socket.disconnect();
   Object.assign(state, { screen: 'auth', authStep: 'phone', token: '', user: null, contacts: [], groups: [], messages: {}, activeChat: null, socket: null });
   render();
@@ -596,6 +608,9 @@ function logout() {
 
 // ── Chat ──────────────────────────────────────────────────
 async function openChat(chat) {
+  if (window.innerWidth <= 768) {
+    document.querySelector('.sidebar')?.classList.add('mobile-hidden');
+  }
   state.activeChat = chat;
   state.unread[chat.phone || chat.id] = 0;
   if (chat.type === 'dm') {
@@ -1082,6 +1097,80 @@ function fmtTime(ts) {
 </script>
 </body>
 </html>
+<!-- STYLE PATCH - injected -->
+<style>
+  /* ── Telegram date badge ── */
+  .date-badge {
+    text-align: center; margin: 12px 0;
+  }
+  .date-badge span {
+    background: rgba(0,0,0,0.35);
+    backdrop-filter: blur(8px);
+    color: #fff;
+    font-size: 11px;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-weight: 500;
+  }
 
-</body>
-</html>
+  /* ── Better bubble tails ── */
+  .msg-group.out .bubble::after {
+    content: '';
+    position: absolute; bottom: 0; right: -7px;
+    width: 0; height: 0;
+    border-left: 8px solid #00a86b;
+    border-top: 6px solid transparent;
+    border-bottom: 0px solid transparent;
+  }
+  .msg-group.in .bubble::after {
+    content: '';
+    position: absolute; bottom: 0; left: -7px;
+    width: 0; height: 0;
+    border-right: 8px solid rgba(22,38,58,0.92);
+    border-top: 6px solid transparent;
+    border-bottom: 0px solid transparent;
+  }
+
+  /* ── Message timestamp inside bubble ── */
+  .bubble-meta {
+    display: flex; justify-content: flex-end;
+    align-items: center; gap: 4px;
+    margin-top: 2px;
+  }
+  .bubble-ts {
+    font-size: 10px;
+    color: rgba(0,0,0,0.4);
+  }
+  .msg-group.in .bubble-ts { color: rgba(255,255,255,0.4); }
+
+  /* ── Telegram unread divider ── */
+  .unread-divider {
+    display: flex; align-items: center; gap: 10px;
+    padding: 4px 12px; margin: 8px 0;
+  }
+  .unread-divider::before, .unread-divider::after {
+    content: ''; flex: 1; height: 1px;
+    background: rgba(0,229,160,0.2);
+  }
+  .unread-divider span {
+    font-size: 11px; color: var(--accent); white-space: nowrap;
+  }
+
+  /* ── Sidebar improvements ── */
+  .sidebar {
+    background: #0e1621 !important;
+  }
+  .sidebar-header {
+    background: #17212b;
+    border-bottom: 1px solid rgba(255,255,255,0.05) !important;
+  }
+  .chat-item:hover { background: rgba(255,255,255,0.05) !important; }
+  .chat-item.active { background: rgba(0,229,160,0.1) !important; }
+
+  /* ── Empty state wallpaper ── */
+  .empty-state {
+    background-color: #17212b !important;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='500' height='500'%3E%3Crect width='500' height='500' fill='%2317212b'/%3E%3Ccircle cx='100' cy='100' r='150' fill='%2300e5a0' fill-opacity='0.05'/%3E%3Ccircle cx='400' cy='400' r='150' fill='%230088cc' fill-opacity='0.06'/%3E%3Ccircle cx='250' cy='250' r='60' fill='none' stroke='%2300e5a0' stroke-opacity='0.07' stroke-width='2'/%3E%3Ccircle cx='250' cy='250' r='120' fill='none' stroke='%230088cc' stroke-opacity='0.04' stroke-width='1'/%3E%3C/svg%3E") !important;
+    background-size: 500px 500px !important;
+  }
+</style>
