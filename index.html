@@ -442,8 +442,8 @@ const state = {
   screen: 'auth',         // auth | main
   authStep: 'phone',      // phone | otp | name
   phone: '', name: '', demoOtp: '',
-  token: localStorage.getItem('ifemi_token') || '',
-  user: JSON.parse(localStorage.getItem('ifemi_user') || 'null'),
+  token: sessionStorage.getItem('ifemi_token') || '',
+  user: JSON.parse(sessionStorage.getItem('ifemi_user') || 'null'),
   contacts: [],
   groups: [],
   messages: {},           // roomId -> [messages]
@@ -571,8 +571,8 @@ async function verifyOtp() {
   if (data.error) { showToast(data.error); if(btn){btn.disabled=false;btn.textContent='Verify & Continue';} return; }
   state.token = data.token;
   state.user = data.user;
-  localStorage.setItem('ifemi_token', data.token);
-  localStorage.setItem('ifemi_user', JSON.stringify(data.user));
+  sessionStorage.setItem('ifemi_token', data.token);
+  sessionStorage.setItem('ifemi_user', JSON.stringify(data.user));
   await loadData();
   state.screen = 'main';
   connectSocket();
@@ -589,8 +589,8 @@ async function loadData() {
 }
 
 function logout() {
-  localStorage.removeItem('ifemi_token');
-  localStorage.removeItem('ifemi_user');
+  sessionStorage.removeItem('ifemi_token');
+  sessionStorage.removeItem('ifemi_user');
   if (state.socket) state.socket.disconnect();
   Object.assign(state, { screen: 'auth', authStep: 'phone', token: '', user: null, contacts: [], groups: [], messages: {}, activeChat: null, socket: null });
   render();
