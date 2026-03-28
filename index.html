@@ -212,12 +212,10 @@
   /* ─────────── CHAT AREA ─────────── */
   .chat-area {
     flex: 1; display: flex; flex-direction: column; height: 100vh;
-    position: relative; overflow: hidden;
-    background-color: #17212b;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='500' height='500'%3E%3Crect width='500' height='500' fill='%2317212b'/%3E%3Ccircle cx='100' cy='100' r='150' fill='%2300e5a0' fill-opacity='0.05'/%3E%3Ccircle cx='400' cy='400' r='150' fill='%230088cc' fill-opacity='0.06'/%3E%3Ccircle cx='400' cy='100' r='100' fill='%2300e5a0' fill-opacity='0.04'/%3E%3Ccircle cx='100' cy='400' r='100' fill='%230088cc' fill-opacity='0.04'/%3E%3Ccircle cx='250' cy='250' r='60' fill='none' stroke='%2300e5a0' stroke-opacity='0.07' stroke-width='2'/%3E%3Ccircle cx='250' cy='250' r='100' fill='none' stroke='%2300e5a0' stroke-opacity='0.05' stroke-width='1.5'/%3E%3Ccircle cx='250' cy='250' r='150' fill='none' stroke='%230088cc' stroke-opacity='0.04' stroke-width='1'/%3E%3Ccircle cx='50' cy='50' r='4' fill='%2300e5a0' fill-opacity='0.15'/%3E%3Ccircle cx='150' cy='50' r='3' fill='%2300e5a0' fill-opacity='0.1'/%3E%3Ccircle cx='250' cy='50' r='4' fill='%2300e5a0' fill-opacity='0.15'/%3E%3Ccircle cx='350' cy='50' r='3' fill='%2300e5a0' fill-opacity='0.1'/%3E%3Ccircle cx='450' cy='50' r='4' fill='%2300e5a0' fill-opacity='0.15'/%3E%3Ccircle cx='50' cy='150' r='3' fill='%2300e5a0' fill-opacity='0.1'/%3E%3Ccircle cx='150' cy='150' r='4' fill='%2300e5a0' fill-opacity='0.15'/%3E%3Ccircle cx='350' cy='150' r='4' fill='%2300e5a0' fill-opacity='0.15'/%3E%3Ccircle cx='450' cy='150' r='3' fill='%2300e5a0' fill-opacity='0.1'/%3E%3Ccircle cx='50' cy='250' r='4' fill='%2300e5a0' fill-opacity='0.12'/%3E%3Ccircle cx='450' cy='250' r='4' fill='%2300e5a0' fill-opacity='0.12'/%3E%3Ccircle cx='50' cy='350' r='3' fill='%2300e5a0' fill-opacity='0.1'/%3E%3Ccircle cx='150' cy='350' r='4' fill='%2300e5a0' fill-opacity='0.15'/%3E%3Ccircle cx='250' cy='350' r='3' fill='%2300e5a0' fill-opacity='0.1'/%3E%3Ccircle cx='350' cy='350' r='4' fill='%2300e5a0' fill-opacity='0.15'/%3E%3Ccircle cx='450' cy='350' r='3' fill='%2300e5a0' fill-opacity='0.1'/%3E%3Ccircle cx='50' cy='450' r='4' fill='%2300e5a0' fill-opacity='0.15'/%3E%3Ccircle cx='150' cy='450' r='3' fill='%2300e5a0' fill-opacity='0.1'/%3E%3Ccircle cx='250' cy='450' r='4' fill='%2300e5a0' fill-opacity='0.15'/%3E%3Ccircle cx='350' cy='450' r='3' fill='%2300e5a0' fill-opacity='0.1'/%3E%3Ccircle cx='450' cy='450' r='4' fill='%2300e5a0' fill-opacity='0.15'/%3E%3C/svg%3E");
-    background-size: 500px 500px;
+    background: linear-gradient(135deg, #0d1f2d 0%, #17212b 50%, #0d1f2d 100%);
+    position: relative;
   }
-  .chat-area > * { position: relative; z-index: 1; }
+  
 
   .chat-header {
     padding: 12px 20px; display: flex; align-items: center; gap: 14px;
@@ -1082,5 +1080,8 @@ function fmtTime(ts) {
     render();
   }
 </script>
+</body>
+</html>
+
 </body>
 </html>
