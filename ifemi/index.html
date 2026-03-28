@@ -1,0 +1,1087 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Ifemi – Talk Freely</title>
+<link rel="manifest" href="manifest.json" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Ifemi" />
+<link rel="apple-touch-icon" href="icon-192.png" />
+<meta name="theme-color" content="#00e5a0" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:       #0b0f1a;
+    --bg2:      #111827;
+    --bg3:      #1a2236;
+    --surface:  #1e2d40;
+    --border:   #2a3a52;
+    --accent:   #00e5a0;
+    --accent2:  #00b87a;
+    --accent3:  #ff6b6b;
+    --text:     #e8f0fe;
+    --text2:    #8fa3bf;
+    --text3:    #4a6080;
+    --bubble-out: #00e5a0;
+    --bubble-in:  #1e2d40;
+    --radius:   16px;
+    --font:     'Sora', sans-serif;
+    --mono:     'Space Mono', monospace;
+  }
+
+  html, body { height: 100%; overflow: hidden; }
+
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+  }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+  /* ── APP SHELL ── */
+  #app { width: 100vw; height: 100vh; display: flex; flex-direction: column; }
+
+  /* ─────────── AUTH SCREEN ─────────── */
+  .auth-screen {
+    flex: 1; display: flex; align-items: center; justify-content: center;
+    background: radial-gradient(ellipse at 30% 40%, #003d2a 0%, transparent 60%),
+                radial-gradient(ellipse at 70% 70%, #001a3a 0%, transparent 60%),
+                var(--bg);
+  }
+  .auth-card {
+    background: rgba(30,45,64,0.8);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 48px 40px;
+    width: min(420px, 92vw);
+    backdrop-filter: blur(20px);
+    box-shadow: 0 32px 80px rgba(0,0,0,0.6);
+    animation: slideUp 0.5s cubic-bezier(0.22,1,0.36,1);
+  }
+  @keyframes slideUp { from { opacity:0; transform:translateY(30px); } to { opacity:1; transform:none; } }
+
+  .auth-logo { display: flex; align-items: center; gap: 12px; margin-bottom: 36px; }
+  .auth-logo-icon {
+    width: 48px; height: 48px; border-radius: 14px;
+    background: linear-gradient(135deg, var(--accent), #00b87a);
+    display: flex; align-items: center; justify-content: center; font-size: 24px;
+    box-shadow: 0 8px 24px rgba(0,229,160,0.4);
+  }
+  .auth-logo-text { font-size: 28px; font-weight: 700; letter-spacing: -0.5px; }
+  .auth-logo-text span { color: var(--accent); }
+
+  .auth-tagline { font-size: 13px; color: var(--text2); margin-bottom: 32px; line-height: 1.6; }
+
+  .auth-step-label { font-size: 12px; font-weight: 600; color: var(--accent); letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 8px; }
+  .auth-title { font-size: 22px; font-weight: 700; margin-bottom: 24px; }
+
+  .input-group { margin-bottom: 16px; }
+  .input-group label { display: block; font-size: 12px; color: var(--text2); margin-bottom: 6px; font-weight: 500; }
+  .input-group input {
+    width: 100%; padding: 14px 16px;
+    background: var(--bg3); border: 1.5px solid var(--border);
+    border-radius: 12px; color: var(--text);
+    font-family: var(--font); font-size: 15px;
+    outline: none; transition: border-color 0.2s;
+  }
+  .input-group input:focus { border-color: var(--accent); }
+  .input-group input::placeholder { color: var(--text3); }
+
+  .btn-primary {
+    width: 100%; padding: 15px; border: none; border-radius: 12px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: #000; font-family: var(--font); font-size: 15px; font-weight: 700;
+    cursor: pointer; transition: opacity 0.2s, transform 0.15s;
+    margin-top: 8px; letter-spacing: 0.3px;
+  }
+  .btn-primary:hover { opacity: 0.92; transform: translateY(-1px); }
+  .btn-primary:active { transform: translateY(0); }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  .auth-note { font-size: 12px; color: var(--text3); text-align: center; margin-top: 16px; line-height: 1.6; }
+  .auth-demo-otp { background: rgba(0,229,160,0.1); border: 1px solid rgba(0,229,160,0.3); border-radius: 10px; padding: 12px 16px; margin-bottom: 16px; font-family: var(--mono); font-size: 13px; color: var(--accent); }
+
+  /* ─────────── MAIN LAYOUT ─────────── */
+  .main-layout { flex: 1; display: flex; height: 100vh; overflow: hidden; }
+
+  /* ─────────── SIDEBAR ─────────── */
+  .sidebar {
+    width: 340px; min-width: 340px;
+    background: var(--bg2);
+    border-right: 1px solid var(--border);
+    display: flex; flex-direction: column;
+    height: 100vh;
+  }
+
+  .sidebar-header {
+    padding: 20px 20px 16px;
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+  }
+  .sidebar-logo { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
+  .sidebar-logo span { color: var(--accent); }
+
+  .sidebar-actions { display: flex; gap: 8px; }
+  .icon-btn {
+    width: 36px; height: 36px; border-radius: 10px;
+    background: var(--bg3); border: 1px solid var(--border);
+    color: var(--text2); cursor: pointer; display: flex;
+    align-items: center; justify-content: center; font-size: 16px;
+    transition: all 0.2s;
+  }
+  .icon-btn:hover { background: var(--surface); color: var(--accent); border-color: var(--accent); }
+
+  .sidebar-tabs {
+    display: flex; padding: 12px 20px; gap: 4px;
+    border-bottom: 1px solid var(--border);
+  }
+  .tab-btn {
+    flex: 1; padding: 8px 4px; border: none; border-radius: 10px;
+    background: transparent; color: var(--text2); font-family: var(--font);
+    font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s;
+  }
+  .tab-btn.active { background: var(--surface); color: var(--accent); }
+
+  .search-box { padding: 12px 16px; }
+  .search-input-wrap { position: relative; }
+  .search-input-wrap span { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text3); font-size: 14px; }
+  .search-input-wrap input {
+    width: 100%; padding: 10px 12px 10px 36px;
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: 10px; color: var(--text); font-family: var(--font); font-size: 13px; outline: none;
+  }
+  .search-input-wrap input:focus { border-color: var(--accent); }
+
+  .chat-list { flex: 1; overflow-y: auto; }
+  .chat-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 20px; cursor: pointer; transition: background 0.15s;
+    position: relative;
+  }
+  .chat-item:hover { background: var(--bg3); }
+  .chat-item.active { background: var(--surface); }
+
+  .avatar {
+    width: 46px; height: 46px; border-radius: 50%;
+    object-fit: cover; flex-shrink: 0;
+    background: var(--bg3);
+  }
+  .avatar-placeholder {
+    width: 46px; height: 46px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--surface), var(--bg3));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; font-weight: 700; color: var(--accent); flex-shrink: 0;
+    border: 2px solid var(--border);
+  }
+
+  .chat-info { flex: 1; min-width: 0; }
+  .chat-name { font-size: 14px; font-weight: 600; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .chat-preview { font-size: 12px; color: var(--text2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  .chat-meta { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+  .chat-time { font-size: 11px; color: var(--text3); }
+  .unread-badge {
+    background: var(--accent); color: #000; border-radius: 50%;
+    width: 18px; height: 18px; display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 700;
+  }
+
+  .online-dot {
+    position: absolute; left: 50px; top: 14px;
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--accent); border: 2px solid var(--bg2);
+  }
+
+  /* ─── Sidebar footer ─── */
+  .sidebar-footer {
+    border-top: 1px solid var(--border); padding: 16px 20px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .my-avatar { cursor: pointer; }
+  .my-info { flex: 1; }
+  .my-name { font-size: 14px; font-weight: 600; }
+  .my-phone { font-size: 11px; color: var(--text2); }
+
+  /* ─────────── CHAT AREA ─────────── */
+  .chat-area {
+    flex: 1; display: flex; flex-direction: column; height: 100vh;
+    background: var(--bg);
+    background-image: radial-gradient(circle at 20% 80%, rgba(0,229,160,0.03) 0%, transparent 50%),
+                      radial-gradient(circle at 80% 20%, rgba(0,90,200,0.05) 0%, transparent 50%);
+  }
+
+  .chat-header {
+    padding: 14px 24px; display: flex; align-items: center; gap: 14px;
+    background: var(--bg2); border-bottom: 1px solid var(--border);
+  }
+  .chat-contact-info { flex: 1; }
+  .chat-contact-name { font-size: 15px; font-weight: 600; }
+  .chat-contact-status { font-size: 12px; color: var(--accent); }
+  .chat-header-actions { display: flex; gap: 8px; }
+
+  .messages-area { flex: 1; overflow-y: auto; padding: 24px 20px; display: flex; flex-direction: column; gap: 4px; }
+
+  .msg-group { display: flex; flex-direction: column; margin-bottom: 8px; }
+  .msg-group.out { align-items: flex-end; }
+  .msg-group.in { align-items: flex-start; }
+
+  .bubble {
+    max-width: 70%; padding: 10px 14px; border-radius: 18px;
+    font-size: 14px; line-height: 1.5; position: relative;
+    word-break: break-word;
+  }
+  .msg-group.out .bubble {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: #001a0d; border-bottom-right-radius: 4px;
+  }
+  .msg-group.in .bubble {
+    background: var(--surface); color: var(--text);
+    border-bottom-left-radius: 4px; border: 1px solid var(--border);
+  }
+
+  .bubble-time {
+    font-size: 10px; color: var(--text3); margin-top: 3px; padding: 0 4px;
+  }
+  .msg-group.out .bubble-time { text-align: right; }
+
+  .msg-sender { font-size: 11px; color: var(--accent); font-weight: 600; margin-bottom: 3px; padding: 0 4px; }
+
+  .typing-indicator {
+    display: flex; gap: 4px; align-items: center; padding: 10px 14px;
+    background: var(--surface); border-radius: 18px; border-bottom-left-radius: 4px;
+    width: fit-content; border: 1px solid var(--border);
+  }
+  .typing-dot {
+    width: 6px; height: 6px; border-radius: 50%; background: var(--text3);
+    animation: typingBounce 1.2s infinite;
+  }
+  .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+  .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes typingBounce { 0%,60%,100% { transform: translateY(0); } 30% { transform: translateY(-6px); background: var(--accent); } }
+
+  .chat-input-area {
+    padding: 16px 20px;
+    background: var(--bg2); border-top: 1px solid var(--border);
+    display: flex; align-items: center; gap: 12px;
+  }
+  .chat-input {
+    flex: 1; padding: 13px 18px;
+    background: var(--bg3); border: 1.5px solid var(--border);
+    border-radius: 24px; color: var(--text); font-family: var(--font); font-size: 14px;
+    outline: none; resize: none; transition: border-color 0.2s;
+    max-height: 120px; overflow-y: auto;
+  }
+  .chat-input:focus { border-color: var(--accent); }
+
+  .send-btn {
+    width: 44px; height: 44px; border-radius: 50%; border: none;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: #001a0d; font-size: 18px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: transform 0.15s, opacity 0.2s; flex-shrink: 0;
+  }
+  .send-btn:hover { transform: scale(1.08); }
+  .send-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+  /* ─────────── EMPTY STATE ─────────── */
+  .empty-state {
+    flex: 1; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    color: var(--text2); gap: 16px;
+    background: radial-gradient(ellipse at center, rgba(0,229,160,0.04) 0%, transparent 70%);
+  }
+  .empty-icon { font-size: 64px; opacity: 0.3; }
+  .empty-title { font-size: 22px; font-weight: 700; color: var(--text); }
+  .empty-desc { font-size: 14px; color: var(--text2); text-align: center; max-width: 280px; line-height: 1.6; }
+
+  /* ─────────── MODAL ─────────── */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(8px);
+    display: flex; align-items: center; justify-content: center; z-index: 100;
+    animation: fadeIn 0.2s;
+  }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  .modal {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 20px; padding: 32px; width: min(400px, 90vw);
+    animation: slideUp 0.3s cubic-bezier(0.22,1,0.36,1);
+  }
+  .modal-title { font-size: 18px; font-weight: 700; margin-bottom: 20px; }
+  .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
+  .btn-secondary {
+    flex: 1; padding: 12px; border: 1px solid var(--border); border-radius: 10px;
+    background: var(--bg3); color: var(--text); font-family: var(--font);
+    font-size: 14px; cursor: pointer; transition: background 0.2s;
+  }
+  .btn-secondary:hover { background: var(--surface); }
+
+  /* ─────────── CALL SCREEN ─────────── */
+  .call-screen {
+    position: fixed; inset: 0; z-index: 200;
+    background: radial-gradient(ellipse at center, #0d2418 0%, #060c14 100%);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 24px;
+    animation: fadeIn 0.3s;
+  }
+  .call-avatar { width: 120px; height: 120px; border-radius: 50%; border: 4px solid var(--accent); object-fit: cover; }
+  .call-avatar-placeholder {
+    width: 120px; height: 120px; border-radius: 50%;
+    background: var(--surface); border: 4px solid var(--accent);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 48px; font-weight: 700; color: var(--accent);
+    animation: pulseBorder 2s infinite;
+  }
+  @keyframes pulseBorder { 0%,100% { box-shadow: 0 0 0 0 rgba(0,229,160,0.4); } 50% { box-shadow: 0 0 0 20px rgba(0,229,160,0); } }
+  .call-name { font-size: 28px; font-weight: 700; }
+  .call-status { font-size: 15px; color: var(--accent); }
+  .call-duration { font-family: var(--mono); font-size: 18px; color: var(--text2); }
+  .call-controls { display: flex; gap: 20px; margin-top: 16px; }
+  .call-btn {
+    width: 64px; height: 64px; border-radius: 50%; border: none;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px; cursor: pointer; transition: transform 0.15s;
+  }
+  .call-btn:hover { transform: scale(1.1); }
+  .call-btn.end { background: #ff4444; color: white; }
+  .call-btn.mute { background: var(--surface); color: var(--text); }
+  .call-btn.speaker { background: var(--surface); color: var(--text); }
+  .call-btn.active { background: var(--accent); color: #001a0d; }
+  .call-btn.video { background: var(--surface); color: var(--text); }
+
+  .incoming-call-overlay {
+    position: fixed; bottom: 32px; right: 32px; z-index: 200;
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 20px; padding: 24px 28px;
+    display: flex; flex-direction: column; align-items: center; gap: 12px;
+    min-width: 260px; box-shadow: 0 24px 64px rgba(0,0,0,0.6);
+    animation: slideUp 0.4s cubic-bezier(0.22,1,0.36,1);
+  }
+  .incoming-call-name { font-size: 16px; font-weight: 700; }
+  .incoming-call-type { font-size: 13px; color: var(--accent); }
+  .incoming-call-btns { display: flex; gap: 16px; }
+  .call-accept { background: var(--accent); color: #001a0d; }
+  .call-reject { background: #ff4444; color: white; }
+
+  /* ─── Group creation step ─── */
+  .members-list { max-height: 200px; overflow-y: auto; margin: 12px 0; }
+  .member-item {
+    display: flex; align-items: center; gap: 10px; padding: 8px 0;
+    cursor: pointer; border-bottom: 1px solid var(--border);
+  }
+  .member-item input[type=checkbox] { accent-color: var(--accent); width: 16px; height: 16px; }
+
+  /* ─── Toast ─── */
+  .toast {
+    position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%);
+    background: var(--surface); border: 1px solid var(--accent);
+    color: var(--text); padding: 12px 24px; border-radius: 50px;
+    font-size: 13px; font-weight: 500; z-index: 500;
+    animation: toastIn 0.3s cubic-bezier(0.22,1,0.36,1);
+    white-space: nowrap;
+  }
+  @keyframes toastIn { from { opacity: 0; transform: translateX(-50%) translateY(20px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+
+  /* ─── Profile panel ─── */
+  .profile-panel {
+    width: 320px; background: var(--bg2); border-left: 1px solid var(--border);
+    padding: 32px 24px; display: flex; flex-direction: column; gap: 20px;
+    animation: slideLeft 0.3s cubic-bezier(0.22,1,0.36,1);
+  }
+  @keyframes slideLeft { from { opacity:0; transform:translateX(30px); } to { opacity:1; transform:none; } }
+
+  .profile-avatar-large {
+    width: 96px; height: 96px; border-radius: 50%;
+    border: 3px solid var(--accent); margin: 0 auto;
+  }
+  .profile-name-large { font-size: 20px; font-weight: 700; text-align: center; }
+  .profile-phone { font-size: 13px; color: var(--text2); text-align: center; }
+  .profile-status { font-size: 13px; color: var(--text3); text-align: center; font-style: italic; border: 1px solid var(--border); border-radius: 10px; padding: 10px; }
+
+  @media (max-width: 768px) {
+    .sidebar { width: 100%; min-width: 100%; }
+    .chat-area { display: none; }
+    .chat-area.mobile-active { display: flex; position: fixed; inset: 0; z-index: 10; }
+    .sidebar.mobile-hidden { display: none; }
+    .profile-panel { display: none; }
+  }
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+// ══════════════════════════════════════════════════════════
+//  IFEMI APP — Pure JS (no framework dependency)
+//  Connects to backend at BACKEND_URL
+// ══════════════════════════════════════════════════════════
+
+const BACKEND_URL = 'http://localhost:4000'; // Change to your deployed backend URL
+const SOCKET_URL  = 'http://localhost:4000';
+
+// ── State ─────────────────────────────────────────────────
+const state = {
+  screen: 'auth',         // auth | main
+  authStep: 'phone',      // phone | otp | name
+  phone: '', name: '', demoOtp: '',
+  token: localStorage.getItem('ifemi_token') || '',
+  user: JSON.parse(localStorage.getItem('ifemi_user') || 'null'),
+  contacts: [],
+  groups: [],
+  messages: {},           // roomId -> [messages]
+  activeChat: null,       // { type: 'dm'|'group', id, name, phone?, avatar }
+  activeTab: 'chats',
+  typingFrom: null,
+  socket: null,
+  onlinePhones: new Set(),
+  incomingCall: null,
+  activeCall: null,       // { phone, name, type, timer }
+  callSeconds: 0,
+  callInterval: null,
+  muted: false, speaker: false, videoOn: false,
+  showAddContact: false,
+  showNewGroup: false,
+  showProfile: null,
+  toast: null,
+  unread: {},
+  searchQuery: '',
+};
+
+// ── API helpers ───────────────────────────────────────────
+async function api(method, path, body) {
+  const res = await fetch(BACKEND_URL + path, {
+    method,
+    headers: {
+      'Content-Type': 'application/json',
+      ...(state.token ? { Authorization: 'Bearer ' + state.token } : {}),
+    },
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  return res.json();
+}
+
+// ── Toast ─────────────────────────────────────────────────
+function showToast(msg) {
+  state.toast = msg;
+  render();
+  setTimeout(() => { state.toast = null; render(); }, 3000);
+}
+
+// ── Socket setup ──────────────────────────────────────────
+function connectSocket() {
+  if (!window.io) return;
+  if (state.socket) state.socket.disconnect();
+  const socket = window.io(SOCKET_URL, { auth: { token: state.token } });
+  state.socket = socket;
+
+  socket.on('message:receive', (msg) => {
+    const rid = roomId(state.user.phone, msg.from);
+    if (!state.messages[rid]) state.messages[rid] = [];
+    state.messages[rid].push(msg);
+    if (!state.activeChat || state.activeChat.phone !== msg.from) {
+      state.unread[msg.from] = (state.unread[msg.from] || 0) + 1;
+    }
+    render();
+    scrollMessages();
+  });
+
+  socket.on('message:sent', (msg) => {
+    const rid = roomId(state.user.phone, msg.to);
+    if (!state.messages[rid]) state.messages[rid] = [];
+    // avoid dupe
+    if (!state.messages[rid].find(m => m.id === msg.id)) state.messages[rid].push(msg);
+    render(); scrollMessages();
+  });
+
+  socket.on('group:message:receive', (msg) => {
+    const key = 'group_' + msg.groupId;
+    if (!state.messages[key]) state.messages[key] = [];
+    state.messages[key].push(msg);
+    render(); scrollMessages();
+  });
+
+  socket.on('typing:start', ({ from }) => {
+    state.typingFrom = from; render();
+    clearTimeout(state._typingTimeout);
+    state._typingTimeout = setTimeout(() => { state.typingFrom = null; render(); }, 3000);
+  });
+  socket.on('typing:stop', () => { state.typingFrom = null; render(); });
+
+  socket.on('user:online', ({ phone, online }) => {
+    if (online) state.onlinePhones.add(phone);
+    else state.onlinePhones.delete(phone);
+    render();
+  });
+
+  // ─── Call events ───
+  socket.on('call:incoming', ({ from, offer, callType, callerInfo }) => {
+    state.incomingCall = { from, offer, callType, callerInfo };
+    render();
+  });
+  socket.on('call:answered', ({ answer }) => {
+    if (state.activeCall) { state.activeCall.status = 'connected'; startCallTimer(); render(); }
+  });
+  socket.on('call:rejected', () => {
+    showToast('Call declined'); endCall();
+  });
+  socket.on('call:ended', () => {
+    showToast('Call ended'); endCall();
+  });
+}
+
+function roomId(a, b) { return [a, b].sort().join('_'); }
+
+// ── Auth ──────────────────────────────────────────────────
+async function sendOtp() {
+  const ph = document.getElementById('phone-input')?.value?.trim();
+  if (!ph || ph.length < 7) return showToast('Enter a valid phone number');
+  state.phone = ph;
+  const btn = document.getElementById('otp-btn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Sending…'; }
+  const data = await api('POST', '/auth/send-otp', { phone: ph });
+  if (data.demo_otp) state.demoOtp = data.demo_otp;
+  state.authStep = 'otp'; render();
+}
+
+async function verifyOtp() {
+  const otp = document.getElementById('otp-input')?.value?.trim();
+  if (!otp || otp.length !== 6) return showToast('Enter 6-digit OTP');
+  const name = document.getElementById('name-input')?.value?.trim();
+  const btn = document.getElementById('verify-btn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Verifying…'; }
+  const data = await api('POST', '/auth/verify-otp', { phone: state.phone, otp, name });
+  if (data.error) { showToast(data.error); if(btn){btn.disabled=false;btn.textContent='Verify & Continue';} return; }
+  state.token = data.token;
+  state.user = data.user;
+  localStorage.setItem('ifemi_token', data.token);
+  localStorage.setItem('ifemi_user', JSON.stringify(data.user));
+  await loadData();
+  state.screen = 'main';
+  connectSocket();
+  render();
+}
+
+async function loadData() {
+  const [contacts, groups] = await Promise.all([
+    api('GET', '/user/contacts'),
+    api('GET', '/groups'),
+  ]);
+  state.contacts = Array.isArray(contacts) ? contacts : [];
+  state.groups = Array.isArray(groups) ? groups : [];
+}
+
+function logout() {
+  localStorage.removeItem('ifemi_token');
+  localStorage.removeItem('ifemi_user');
+  if (state.socket) state.socket.disconnect();
+  Object.assign(state, { screen: 'auth', authStep: 'phone', token: '', user: null, contacts: [], groups: [], messages: {}, activeChat: null, socket: null });
+  render();
+}
+
+// ── Chat ──────────────────────────────────────────────────
+async function openChat(chat) {
+  state.activeChat = chat;
+  state.unread[chat.phone || chat.id] = 0;
+  if (chat.type === 'dm') {
+    const rid = roomId(state.user.phone, chat.phone);
+    if (!state.messages[rid]) {
+      const msgs = await api('GET', '/messages/' + chat.phone);
+      state.messages[rid] = Array.isArray(msgs) ? msgs : [];
+    }
+  } else {
+    const key = 'group_' + chat.id;
+    if (!state.messages[key]) {
+      const msgs = await api('GET', '/groups/' + chat.id + '/messages');
+      state.messages[key] = Array.isArray(msgs) ? msgs : [];
+    }
+  }
+  render(); scrollMessages();
+}
+
+function sendMessage() {
+  const inp = document.getElementById('msg-input');
+  const content = inp?.value?.trim();
+  if (!content || !state.activeChat || !state.socket) return;
+  if (state.activeChat.type === 'dm') {
+    state.socket.emit('message:send', { toPhone: state.activeChat.phone, content });
+  } else {
+    state.socket.emit('group:message:send', { groupId: state.activeChat.id, content });
+  }
+  if (inp) inp.value = '';
+}
+
+let typingTimeout;
+function onTyping() {
+  if (!state.socket || !state.activeChat || state.activeChat.type !== 'dm') return;
+  state.socket.emit('typing:start', { toPhone: state.activeChat.phone });
+  clearTimeout(typingTimeout);
+  typingTimeout = setTimeout(() => {
+    state.socket?.emit('typing:stop', { toPhone: state.activeChat.phone });
+  }, 2000);
+}
+
+function scrollMessages() {
+  setTimeout(() => {
+    const el = document.getElementById('messages-area');
+    if (el) el.scrollTop = el.scrollHeight;
+  }, 50);
+}
+
+// ── Add Contact ───────────────────────────────────────────
+async function addContact() {
+  const ph = document.getElementById('contact-phone')?.value?.trim();
+  if (!ph) return;
+  const data = await api('POST', '/user/add-contact', { contactPhone: ph });
+  if (data.error) return showToast(data.error);
+  state.contacts.push(data.contact);
+  state.showAddContact = false;
+  showToast('Contact added: ' + data.contact.name);
+  render();
+}
+
+// ── Create Group ──────────────────────────────────────────
+async function createGroup() {
+  const name = document.getElementById('group-name-input')?.value?.trim();
+  if (!name) return showToast('Enter group name');
+  const checked = [...document.querySelectorAll('.member-check:checked')].map(el => el.value);
+  const data = await api('POST', '/groups/create', { name, members: checked });
+  if (data.error) return showToast(data.error);
+  state.groups.push(data);
+  state.showNewGroup = false;
+  showToast('Group "' + name + '" created!');
+  render();
+}
+
+// ── Calls ─────────────────────────────────────────────────
+function startCall(type) {
+  if (!state.activeChat || state.activeChat.type !== 'dm') return;
+  state.activeCall = {
+    phone: state.activeChat.phone,
+    name: state.activeChat.name,
+    type, status: 'calling',
+    avatar: state.activeChat.avatar,
+  };
+  state.socket?.emit('call:initiate', {
+    toPhone: state.activeChat.phone,
+    offer: { type: 'offer', sdp: 'demo_sdp' },
+    callType: type,
+  });
+  render();
+}
+
+function acceptCall() {
+  const c = state.incomingCall;
+  state.activeCall = {
+    phone: c.from, name: c.callerInfo?.name || c.from,
+    type: c.callType, status: 'connected',
+    avatar: c.callerInfo?.avatar,
+  };
+  state.socket?.emit('call:answer', {
+    toPhone: c.from,
+    answer: { type: 'answer', sdp: 'demo_sdp' },
+  });
+  state.incomingCall = null;
+  startCallTimer();
+  render();
+}
+
+function rejectCall() {
+  state.socket?.emit('call:reject', { toPhone: state.incomingCall?.from });
+  state.incomingCall = null;
+  render();
+}
+
+function endCall() {
+  if (state.activeCall) {
+    state.socket?.emit('call:end', { toPhone: state.activeCall.phone });
+  }
+  state.activeCall = null; state.incomingCall = null;
+  clearInterval(state.callInterval); state.callSeconds = 0;
+  state.muted = false; state.speaker = false; state.videoOn = false;
+  render();
+}
+
+function startCallTimer() {
+  clearInterval(state.callInterval);
+  state.callSeconds = 0;
+  state.callInterval = setInterval(() => { state.callSeconds++; render(); }, 1000);
+}
+
+function formatDuration(s) {
+  const m = Math.floor(s / 60).toString().padStart(2,'0');
+  const sec = (s % 60).toString().padStart(2,'0');
+  return m + ':' + sec;
+}
+
+// ── Init if token exists ──────────────────────────────────
+(async () => {
+  if (state.token && state.user) {
+    await loadData();
+    state.screen = 'main';
+    connectSocket();
+  }
+  render();
+})();
+
+// ── Render ────────────────────────────────────────────────
+function render() {
+  const root = document.getElementById('app');
+  if (!root) return;
+
+  // ── Toast ──
+  const existingToast = document.getElementById('toast-el');
+  if (existingToast) existingToast.remove();
+  if (state.toast) {
+    const t = document.createElement('div');
+    t.id = 'toast-el'; t.className = 'toast'; t.textContent = state.toast;
+    document.body.appendChild(t);
+  }
+
+  if (state.screen === 'auth') {
+    root.innerHTML = renderAuth();
+    attachAuthEvents();
+    return;
+  }
+
+  root.innerHTML = renderMain();
+  attachMainEvents();
+  scrollMessages();
+}
+
+// ── Auth render ───────────────────────────────────────────
+function renderAuth() {
+  return `
+  <div class="auth-screen">
+    <div class="auth-card">
+      <div class="auth-logo">
+        <div class="auth-logo-icon">💬</div>
+        <div class="auth-logo-text">If<span>emi</span></div>
+      </div>
+      <p class="auth-tagline">Connect with anyone, anywhere in the world — for free. No limits, no boundaries.</p>
+      ${state.authStep === 'phone' ? `
+        <div class="auth-step-label">Step 1 of 2</div>
+        <div class="auth-title">Enter your phone number</div>
+        <div class="input-group">
+          <label>Phone number (with country code)</label>
+          <input id="phone-input" type="tel" placeholder="+234 800 000 0000" value="${state.phone}" />
+        </div>
+        <button class="btn-primary" id="otp-btn" onclick="sendOtp()">Send OTP →</button>
+        <p class="auth-note">We'll send a 6-digit code to verify your number.</p>
+      ` : `
+        <div class="auth-step-label">Step 2 of 2</div>
+        <div class="auth-title">Verify & set up</div>
+        ${state.demoOtp ? `<div class="auth-demo-otp">🔑 Demo OTP: ${state.demoOtp}</div>` : ''}
+        <div class="input-group">
+          <label>Your name</label>
+          <input id="name-input" type="text" placeholder="What should we call you?" />
+        </div>
+        <div class="input-group">
+          <label>6-digit OTP</label>
+          <input id="otp-input" type="text" maxlength="6" placeholder="••••••" />
+        </div>
+        <button class="btn-primary" id="verify-btn" onclick="verifyOtp()">Verify & Continue →</button>
+        <p class="auth-note"><span style="cursor:pointer;color:var(--accent)" onclick="state.authStep='phone';render()">← Change number</span></p>
+      `}
+    </div>
+  </div>`;
+}
+
+function attachAuthEvents() {
+  document.getElementById('phone-input')?.addEventListener('keypress', e => { if (e.key === 'Enter') sendOtp(); });
+  document.getElementById('otp-input')?.addEventListener('keypress', e => { if (e.key === 'Enter') verifyOtp(); });
+}
+
+// ── Main render ───────────────────────────────────────────
+function renderMain() {
+  return `
+  <div class="main-layout">
+    ${renderSidebar()}
+    ${state.activeChat ? renderChatArea() : renderEmptyState()}
+    ${state.showProfile ? renderProfilePanel() : ''}
+  </div>
+  ${state.activeCall ? renderCallScreen() : ''}
+  ${state.incomingCall ? renderIncomingCall() : ''}
+  ${state.showAddContact ? renderAddContactModal() : ''}
+  ${state.showNewGroup ? renderNewGroupModal() : ''}
+  `;
+}
+
+function renderSidebar() {
+  const q = state.searchQuery.toLowerCase();
+
+  const dmItems = state.contacts
+    .filter(c => !q || c.name.toLowerCase().includes(q) || c.phone.includes(q))
+    .map(c => {
+      const rid = roomId(state.user.phone, c.phone);
+      const msgs = state.messages[rid] || [];
+      const last = msgs[msgs.length - 1];
+      const isActive = state.activeChat?.phone === c.phone;
+      const online = state.onlinePhones.has(c.phone);
+      const unread = state.unread[c.phone] || 0;
+      return `
+      <div class="chat-item ${isActive ? 'active' : ''}" onclick="openChat({type:'dm',phone:'${c.phone}',name:'${escHtml(c.name)}',avatar:'${c.avatar||''}'})">
+        ${online ? '<div class="online-dot"></div>' : ''}
+        <div class="avatar-placeholder">${c.name[0].toUpperCase()}</div>
+        <div class="chat-info">
+          <div class="chat-name">${escHtml(c.name)}</div>
+          <div class="chat-preview">${last ? escHtml(last.content.slice(0,40)) : c.phone}</div>
+        </div>
+        <div class="chat-meta">
+          ${last ? `<span class="chat-time">${fmtTime(last.timestamp)}</span>` : ''}
+          ${unread ? `<span class="unread-badge">${unread}</span>` : ''}
+        </div>
+      </div>`;
+    }).join('');
+
+  const groupItems = state.groups
+    .filter(g => !q || g.name.toLowerCase().includes(q))
+    .map(g => {
+      const key = 'group_' + g.id;
+      const msgs = state.messages[key] || [];
+      const last = msgs[msgs.length - 1];
+      const isActive = state.activeChat?.id === g.id;
+      return `
+      <div class="chat-item ${isActive ? 'active' : ''}" onclick="openChat({type:'group',id:'${g.id}',name:'${escHtml(g.name)}',avatar:'${g.avatar||''}'})">
+        <div class="avatar-placeholder" style="font-size:14px">👥</div>
+        <div class="chat-info">
+          <div class="chat-name">${escHtml(g.name)}</div>
+          <div class="chat-preview">${last ? escHtml(last.content.slice(0,40)) : `${g.members.length} members`}</div>
+        </div>
+        <div class="chat-meta">
+          ${last ? `<span class="chat-time">${fmtTime(last.timestamp)}</span>` : ''}
+        </div>
+      </div>`;
+    }).join('');
+
+  const listContent = state.activeTab === 'chats' ? dmItems : groupItems;
+
+  return `
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">If<span>emi</span></div>
+      <div class="sidebar-actions">
+        <button class="icon-btn" title="New Chat" onclick="state.showAddContact=true;render()">＋</button>
+        <button class="icon-btn" title="New Group" onclick="state.showNewGroup=true;render()">👥</button>
+      </div>
+    </div>
+    <div class="sidebar-tabs">
+      <button class="tab-btn ${state.activeTab==='chats'?'active':''}" onclick="state.activeTab='chats';render()">💬 Chats</button>
+      <button class="tab-btn ${state.activeTab==='groups'?'active':''}" onclick="state.activeTab='groups';render()">👥 Groups</button>
+    </div>
+    <div class="search-box">
+      <div class="search-input-wrap">
+        <span>🔍</span>
+        <input type="text" placeholder="Search…" value="${escHtml(state.searchQuery)}" oninput="state.searchQuery=this.value;render()" />
+      </div>
+    </div>
+    <div class="chat-list">
+      ${listContent || `<p style="text-align:center;color:var(--text3);padding:32px 20px;font-size:13px">${state.activeTab==='chats'?'Add contacts to start chatting':'No groups yet'}</p>`}
+    </div>
+    <div class="sidebar-footer">
+      <div class="avatar-placeholder my-avatar" onclick="state.showProfile={...state.user,self:true};render()" style="width:38px;height:38px;font-size:14px">${state.user.name[0].toUpperCase()}</div>
+      <div class="my-info">
+        <div class="my-name">${escHtml(state.user.name)}</div>
+        <div class="my-phone">${state.user.phone}</div>
+      </div>
+      <button class="icon-btn" title="Logout" onclick="logout()">🚪</button>
+    </div>
+  </div>`;
+}
+
+function renderEmptyState() {
+  return `
+  <div class="empty-state">
+    <div class="empty-icon">💬</div>
+    <div class="empty-title">Welcome to Ifemi</div>
+    <div class="empty-desc">Add a contact and start a conversation. Your chats are end-to-end secured.</div>
+  </div>`;
+}
+
+function renderChatArea() {
+  const chat = state.activeChat;
+  const isOnline = chat.type === 'dm' && state.onlinePhones.has(chat.phone);
+
+  let msgs = [];
+  if (chat.type === 'dm') {
+    msgs = state.messages[roomId(state.user.phone, chat.phone)] || [];
+  } else {
+    msgs = state.messages['group_' + chat.id] || [];
+  }
+
+  const bubbles = msgs.map(m => {
+    const isOut = m.from === state.user.phone;
+    const sender = isOut ? null : state.contacts.find(c => c.phone === m.from);
+    return `
+    <div class="msg-group ${isOut ? 'out' : 'in'}">
+      ${!isOut && chat.type === 'group' ? `<div class="msg-sender">${sender ? escHtml(sender.name) : m.from}</div>` : ''}
+      <div class="bubble">${escHtml(m.content)}</div>
+      <div class="bubble-time">${fmtTime(m.timestamp)}</div>
+    </div>`;
+  }).join('');
+
+  const isTyping = state.typingFrom === chat.phone;
+
+  return `
+  <div class="chat-area">
+    <div class="chat-header">
+      <div class="avatar-placeholder" style="width:38px;height:38px;font-size:15px">${chat.name[0].toUpperCase()}</div>
+      <div class="chat-contact-info">
+        <div class="chat-contact-name">${escHtml(chat.name)}</div>
+        <div class="chat-contact-status">${isTyping ? '✍️ typing…' : isOnline ? '● online' : chat.type === 'group' ? 'Group' : 'offline'}</div>
+      </div>
+      <div class="chat-header-actions">
+        ${chat.type === 'dm' ? `
+        <button class="icon-btn" title="Voice call" onclick="startCall('voice')">📞</button>
+        <button class="icon-btn" title="Video call" onclick="startCall('video')">🎥</button>
+        ` : ''}
+        <button class="icon-btn" onclick="state.showProfile=state.activeChat;render()">ⓘ</button>
+      </div>
+    </div>
+    <div class="messages-area" id="messages-area">
+      ${bubbles}
+      ${isTyping ? `<div class="msg-group in"><div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div></div>` : ''}
+    </div>
+    <div class="chat-input-area">
+      <textarea class="chat-input" id="msg-input" placeholder="Type a message…" rows="1" oninput="onTyping()" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage()}"></textarea>
+      <button class="send-btn" onclick="sendMessage()">➤</button>
+    </div>
+  </div>`;
+}
+
+function renderCallScreen() {
+  const c = state.activeCall;
+  return `
+  <div class="call-screen">
+    <div class="call-avatar-placeholder">${c.name[0].toUpperCase()}</div>
+    <div class="call-name">${escHtml(c.name)}</div>
+    <div class="call-status">${c.type === 'video' ? '🎥 Video' : '📞 Voice'} call</div>
+    <div class="call-duration">${c.status === 'connected' ? formatDuration(state.callSeconds) : c.status === 'calling' ? 'Calling…' : 'Connecting…'}</div>
+    <div class="call-controls">
+      <button class="call-btn mute ${state.muted?'active':''}" onclick="state.muted=!state.muted;render()" title="Mute">${state.muted?'🔇':'🎤'}</button>
+      ${c.type==='video' ? `<button class="call-btn video ${state.videoOn?'active':''}" onclick="state.videoOn=!state.videoOn;render()" title="Camera">${state.videoOn?'🎥':'📷'}</button>` : ''}
+      <button class="call-btn speaker ${state.speaker?'active':''}" onclick="state.speaker=!state.speaker;render()" title="Speaker">${state.speaker?'🔊':'🔈'}</button>
+      <button class="call-btn end" onclick="endCall()" title="End call">📵</button>
+    </div>
+  </div>`;
+}
+
+function renderIncomingCall() {
+  const c = state.incomingCall;
+  return `
+  <div class="incoming-call-overlay">
+    <div class="avatar-placeholder" style="width:56px;height:56px;font-size:22px">${(c.callerInfo?.name||c.from)[0].toUpperCase()}</div>
+    <div class="incoming-call-name">${escHtml(c.callerInfo?.name || c.from)}</div>
+    <div class="incoming-call-type">Incoming ${c.callType} call…</div>
+    <div class="incoming-call-btns">
+      <button class="call-btn call-reject" onclick="rejectCall()">📵</button>
+      <button class="call-btn call-accept" onclick="acceptCall()">📞</button>
+    </div>
+  </div>`;
+}
+
+function renderAddContactModal() {
+  return `
+  <div class="modal-overlay" onclick="if(event.target===this){state.showAddContact=false;render()}">
+    <div class="modal">
+      <div class="modal-title">➕ Add Contact</div>
+      <div class="input-group">
+        <label>Phone number (with country code)</label>
+        <input id="contact-phone" type="tel" placeholder="+44 700 000 0000" />
+      </div>
+      <div class="modal-actions">
+        <button class="btn-secondary" onclick="state.showAddContact=false;render()">Cancel</button>
+        <button class="btn-primary" style="flex:1" onclick="addContact()">Add Contact</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderNewGroupModal() {
+  return `
+  <div class="modal-overlay" onclick="if(event.target===this){state.showNewGroup=false;render()}">
+    <div class="modal">
+      <div class="modal-title">👥 New Group</div>
+      <div class="input-group">
+        <label>Group name</label>
+        <input id="group-name-input" type="text" placeholder="e.g. Family, Work Team…" />
+      </div>
+      <label style="font-size:12px;color:var(--text2)">Select members</label>
+      <div class="members-list">
+        ${state.contacts.map(c => `
+          <div class="member-item">
+            <input class="member-check" type="checkbox" value="${c.phone}" id="m_${c.phone}" />
+            <div class="avatar-placeholder" style="width:32px;height:32px;font-size:13px">${c.name[0].toUpperCase()}</div>
+            <label for="m_${c.phone}" style="font-size:14px;cursor:pointer">${escHtml(c.name)}</label>
+          </div>`).join('') || '<p style="color:var(--text3);font-size:13px;padding:8px 0">No contacts yet</p>'}
+      </div>
+      <div class="modal-actions">
+        <button class="btn-secondary" onclick="state.showNewGroup=false;render()">Cancel</button>
+        <button class="btn-primary" style="flex:1" onclick="createGroup()">Create Group</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderProfilePanel() {
+  const p = state.showProfile;
+  return `
+  <div class="profile-panel">
+    <button class="icon-btn" style="align-self:flex-end" onclick="state.showProfile=null;render()">✕</button>
+    <div class="avatar-placeholder profile-avatar-large" style="width:96px;height:96px;font-size:36px;margin:0 auto">${p.name[0].toUpperCase()}</div>
+    <div class="profile-name-large">${escHtml(p.name)}</div>
+    ${p.phone ? `<div class="profile-phone">${p.phone}</div>` : ''}
+    ${p.status ? `<div class="profile-status">"${escHtml(p.status)}"</div>` : ''}
+    ${p.members ? `<div style="font-size:13px;color:var(--text2)">${p.members.length} members</div>` : ''}
+  </div>`;
+}
+
+// ── Attach events ─────────────────────────────────────────
+function attachMainEvents() {
+  document.getElementById('msg-input')?.addEventListener('input', function() {
+    this.style.height = 'auto';
+    this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+  });
+}
+
+// ── Utils ─────────────────────────────────────────────────
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function fmtTime(ts) {
+  if (!ts) return '';
+  const d = new Date(ts);
+  return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
+</script>
+
+<!-- Socket.io client -->
+<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+<script>
+  // Re-connect socket after socket.io loads if user is already logged in
+  if (state.token && state.user && !state.socket) {
+    connectSocket();
+    render();
+  }
+</script>
+<script>
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("/sw.js").then(() => console.log("SW registered")).catch(console.error);
+}
+</script>
+</body>
+</html>
