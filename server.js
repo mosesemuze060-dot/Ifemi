@@ -17,7 +17,7 @@ app.use(cors());
 app.use(express.json());
 
 const JWT_SECRET = process.env.JWT_SECRET || 'ifemi_super_secret_2024';
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://Ifemi:Baguvix_21@cluster0.pfdfz4f.mongodb.net/ifemi?appName=Cluster0';
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://Ifemi:Ifemi2024@cluster0.pfdfz4f.mongodb.net/ifemi?appName=Cluster0';
 
 // ─── MongoDB Schemas ──────────────────────────────────────────────────────────
 
