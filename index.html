@@ -416,17 +416,27 @@
   .profile-phone { font-size: 13px; color: var(--text2); text-align: center; }
   .profile-status { font-size: 13px; color: var(--text3); text-align: center; font-style: italic; border: 1px solid var(--border); border-radius: 10px; padding: 10px; }
 
-  @media (max-width: 768px) {
-    .main-layout { position: relative; }
-    .sidebar { width: 100vw; min-width: 100vw; position: absolute; top: 0; left: 0; height: 100vh; z-index: 5; transition: transform 0.3s; }
-    .sidebar.mobile-hidden { transform: translateX(-100%); }
-    .chat-area { width: 100vw; min-width: 100vw; position: absolute; top: 0; left: 0; height: 100vh; z-index: 4; display: none; }
-    .chat-area.mobile-active { display: flex !important; z-index: 6; }
-    .profile-panel { display: none; }
-    .chat-header { padding: 10px 14px; }
-    .messages-area { padding: 12px 8px; }
+  .mobile-back-btn { display: none; }
+  @media (max-width: 900px) {
+    .mobile-back-btn { display: flex !important; }
+    .main-layout { position: relative; overflow: hidden; }
+    .sidebar {
+      width: 100vw !important; min-width: 100vw !important;
+      position: absolute; top: 0; left: 0; height: 100vh;
+      z-index: 5; transition: transform 0.25s ease;
+    }
+    .sidebar.mobile-hidden { transform: translateX(-100%) !important; }
+    .chat-area {
+      width: 100vw !important; min-width: 100vw !important;
+      position: absolute; top: 0; left: 0; height: 100vh;
+      z-index: 10; display: none !important;
+    }
+    .chat-area.mobile-active { display: flex !important; }
+    .profile-panel { display: none !important; }
+    .bubble { max-width: 88%; }
+    .messages-area { padding: 10px 8px; }
     .chat-input-area { padding: 8px 10px; }
-    .bubble { max-width: 85%; }
+    .avatar-placeholder { width: 40px !important; height: 40px !important; }
   }
 </style>
 </head>
@@ -555,6 +565,11 @@ function connectSocket() {
 function closeMobileChat() {
   state.activeChat = null;
   render();
+  // Show sidebar on mobile
+  setTimeout(() => {
+    const sidebar = document.querySelector('.sidebar');
+    if (sidebar) sidebar.classList.remove('mobile-hidden');
+  }, 10);
 }
 
 function roomId(a, b) { return [a, b].sort().join('_'); }
@@ -608,9 +623,13 @@ function logout() {
 
 // ── Chat ──────────────────────────────────────────────────
 async function openChat(chat) {
-  if (window.innerWidth <= 768) {
-    document.querySelector('.sidebar')?.classList.add('mobile-hidden');
-  }
+  // Hide sidebar on mobile when chat opens
+  setTimeout(() => {
+    if (window.innerWidth <= 900) {
+      const sidebar = document.querySelector('.sidebar');
+      if (sidebar) sidebar.classList.add('mobile-hidden');
+    }
+  }, 10);
   state.activeChat = chat;
   state.unread[chat.phone || chat.id] = 0;
   if (chat.type === 'dm') {
